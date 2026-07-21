@@ -4,7 +4,7 @@ An open-source editorial portfolio template for people whose careers are still t
 
 一个面向“仍在成长中的人”的开源编辑式个人作品集模板。
 
-[Live Demo / 在线预览](https://lou-direction-in-formation.cautiousslug.chatgpt.site)
+[Live Demo / 在线预览](https://lou-direction-in-formation.vercel.app/)
 
 ---
 

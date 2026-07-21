@@ -322,14 +322,23 @@ export default function Home() {
           </div>
           <div className="contact-action">
             <p>如果你愿意，我们可以聊聊新的可能。</p>
-            <a href="mailto:914394053@qq.com">914394053@qq.com <span aria-hidden="true">↗</span></a>
+            <div className="contact-links">
+              <a className="email-link" href="mailto:914394053@qq.com">914394053@qq.com <span aria-hidden="true">↗</span></a>
+              <div className="social-links" aria-label="社交链接">
+                <a href="https://github.com/slimeonnnna" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+                <a href="https://www.linkedin.com/in/amynos-l" target="_blank" rel="noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
           </div>
         </section>
       </main>
 
       <footer className="footer">
         <p>© 2026 LOU</p>
-        <p>SEO PRACTICE · GUANGZHOU</p>
+        <div className="footer-social">
+          <a href="https://github.com/slimeonnnna" target="_blank" rel="noreferrer">GITHUB ↗</a>
+          <a href="https://www.linkedin.com/in/amynos-l" target="_blank" rel="noreferrer">LINKEDIN ↗</a>
+        </div>
         <a href="#intro">回到顶部 ↑</a>
       </footer>
     </>

@@ -15,6 +15,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Lou — 在探索中逐渐找到方向",
   description: "Lou 的个人作品集：从进入 SEO，到主动发现问题、承担完整结果，并持续扩展自己的能力边界。",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
   other: {
     "codex-preview": "development",
   },

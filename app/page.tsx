@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const nav = [
   ["首页", "intro"],
@@ -127,48 +127,6 @@ const abilities = [
   },
 ];
 
-function SignalLine() {
-  const lineRef = useRef<SVGPathElement>(null);
-
-  useEffect(() => {
-    let ticking = false;
-    const update = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? window.scrollY / max : 0;
-      document.documentElement.style.setProperty("--line-progress", String(1 - progress));
-      ticking = false;
-    };
-    const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(update);
-        ticking = true;
-      }
-    };
-    const onPointer = (event: PointerEvent) => {
-      const x = (event.clientX / window.innerWidth - 0.5) * 10;
-      const y = (event.clientY / window.innerHeight - 0.5) * 8;
-      lineRef.current?.style.setProperty("transform", `translate(${x}px, ${y}px)`);
-    };
-    update();
-    addEventListener("scroll", onScroll, { passive: true });
-    addEventListener("pointermove", onPointer, { passive: true });
-    return () => {
-      removeEventListener("scroll", onScroll);
-      removeEventListener("pointermove", onPointer);
-    };
-  }, []);
-
-  return (
-    <svg className="signal-line" viewBox="0 0 100 1000" preserveAspectRatio="none" aria-hidden="true">
-      <path
-        ref={lineRef}
-        pathLength="1"
-        d="M-8 74 C 7 60, 19 54, 30 62 C 32 66, 29 84, 37 78 C 52 67, 81 61, 108 54 C 94 121, 74 148, 67 190 C 63 216, 76 229, 65 265 C 55 298, 23 285, 12 330 C 4 362, 22 393, 43 405 C 69 420, 91 399, 106 434 C 86 468, 54 488, 40 533 C 31 562, 45 589, 73 605 C 91 615, 102 640, 91 675 C 77 717, 34 717, 16 760 C 5 786, 22 813, 49 835 C 67 849, 76 884, 59 917 C 48 940, 62 966, 108 990"
-      />
-    </svg>
-  );
-}
-
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState("intro");
@@ -221,9 +179,8 @@ export default function Home() {
       </header>
 
       <main id="content">
-        <SignalLine />
-
         <section className="hero chapter" id="intro" aria-labelledby="hero-title">
+          <span className="field-note" aria-hidden="true">OBSERVATION / 00 <i /> 12 · 24 · 36</span>
           <p className="chapter-label">00 / INTRO</p>
           <div className="hero-title-wrap reveal">
             <h1 id="hero-title"><span>你好，</span><br />我是 <em>Lou</em>。</h1>
@@ -233,12 +190,13 @@ export default function Home() {
             <p>但进入这个领域之后，<br />我开始认真对待每一个问题。</p>
             <small>SEO PRACTICE · 2023—NOW</small>
           </div>
-          <a className="continue-link" href="#beginning">沿着这条线继续 <span aria-hidden="true">↓</span></a>
+          <a className="continue-link" href="#beginning">继续向下阅读 <span aria-hidden="true">↓</span></a>
           <p className="hero-note">在探索中，逐渐找到方向。</p>
           <span className="folio" aria-hidden="true">01</span>
         </section>
 
         <section className="beginning chapter" id="beginning" aria-labelledby="beginning-title">
+          <span className="field-note" aria-hidden="true">FIELD NOTE / 01 <i /> MOVING</span>
           <header className="section-head">
             <p className="chapter-label">01 / 起点</p>
             <h2 id="beginning-title">方向并不是<br />一开始就有的。</h2>
@@ -295,6 +253,7 @@ export default function Home() {
         </section>
 
         <section className="capability chapter" id="capability" aria-labelledby="capability-title">
+          <span className="field-note" aria-hidden="true">SIGNAL MAP / 04 <i /> 04 POINTS</span>
           <header className="section-head section-head--wide">
             <p className="chapter-label">04 / 能力</p>
             <h2 id="capability-title">这些能力，来自<br />一次次实际问题。</h2>
@@ -313,6 +272,7 @@ export default function Home() {
         </section>
 
         <section className="contact chapter" id="contact" aria-labelledby="contact-title">
+          <span className="field-note" aria-hidden="true">OPEN CHANNEL / 05 <i /> CONTINUE</span>
           <p className="chapter-label">05 / 继续</p>
           <div className="contact-main">
             <h2 id="contact-title">我还在继续。</h2>

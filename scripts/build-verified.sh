@@ -11,7 +11,9 @@ if [[ "${VERCEL:-}" == "1" ]]; then
 fi
 
 if [[ "${SITES_ENV_READY:-}" != "1" ]]; then
-  exec bash "${script_dir}/sites-env.sh" -- "$0" "$@"
+  # Re-enter through bash explicitly. GitHub/Cloudflare checkouts may not
+  # preserve executable bits on repository scripts.
+  exec bash "${script_dir}/sites-env.sh" -- bash "${script_dir}/build-verified.sh" "$@"
 fi
 
 command -v timeout >/dev/null || {

@@ -37,7 +37,7 @@ export default function PointerField() {
     const current = { ...target };
     const dotMotion = new Map<string, DotMotion>();
     const spacing = 14;
-    const dotRadius = 0.72;
+    const dotRadius = 0.9;
     const radius = 320;
     const fieldAnchor = {
       x: target.x,
@@ -161,7 +161,7 @@ export default function PointerField() {
       }
 
       opacityPaths.forEach((path, step) => {
-        context.fillStyle = `rgba(32, 32, 30, ${0.1 + step * 0.005})`;
+        context.fillStyle = `rgba(0, 0, 0, ${0.1 + step * 0.005})`;
         context.fill(path);
       });
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PointerField from "./pointer-field";
 
 const nav = [
   ["首页", "intro"],
@@ -150,6 +151,7 @@ export default function Home() {
 
   return (
     <>
+      <PointerField />
       <a className="skip-link" href="#content">跳到主要内容</a>
       <header className="site-header">
         <a className="brand" href="#intro" aria-label="Lou 首页">

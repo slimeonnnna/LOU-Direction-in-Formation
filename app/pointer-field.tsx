@@ -146,9 +146,12 @@ export default function PointerField() {
           }
 
           const opacityStep = Math.min(10, Math.round(current.opacity * eased * 10));
+          const dotX = fieldX + (motion?.dx ?? 0);
+          const dotY = fieldY + (motion?.dy ?? 0);
+          opacityPaths[opacityStep].moveTo(dotX + 0.46, dotY);
           opacityPaths[opacityStep].arc(
-            fieldX + (motion?.dx ?? 0),
-            fieldY + (motion?.dy ?? 0),
+            dotX,
+            dotY,
             0.46,
             0,
             Math.PI * 2,

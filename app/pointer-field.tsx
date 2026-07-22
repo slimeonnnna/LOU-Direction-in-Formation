@@ -48,6 +48,8 @@ export default function PointerField() {
     let width = window.innerWidth;
     let height = window.innerHeight;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let lastScrollY = window.scrollY;
+    let scrollVelocity = 0;
 
     const resize = () => {
       width = window.innerWidth;
@@ -59,10 +61,19 @@ export default function PointerField() {
       canvas.style.height = `${height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       dotMotion.clear();
+      lastScrollY = window.scrollY;
+      scrollVelocity = 0;
     };
 
     const draw = () => {
       const scrollY = window.scrollY;
+      const scrollDelta = scrollY - lastScrollY;
+      lastScrollY = scrollY;
+      if (Math.abs(scrollDelta) > 0.01) {
+        scrollVelocity = Math.max(-32, Math.min(32, scrollVelocity * 0.45 + scrollDelta * 0.55));
+      } else {
+        scrollVelocity *= 0.82;
+      }
       const targetDocumentY = target.y + scrollY;
       if (!fieldAnchor.ready) {
         fieldAnchor.x = target.x;
@@ -88,6 +99,7 @@ export default function PointerField() {
       const endDocumentY = Math.ceil((scrollY + height + 24) / spacing) * spacing;
       const rawPointerSpeed = Math.hypot(current.vx, current.vy);
       const pointerSpeed = Math.min(rawPointerSpeed, 26) / 26;
+      const scrollStrength = Math.min(Math.abs(scrollVelocity), 24) / 24;
       const opacityPaths = Array.from({ length: 11 }, () => new Path2D());
 
       for (let documentY = startDocumentY; documentY <= endDocumentY; documentY += spacing) {
@@ -122,6 +134,16 @@ export default function PointerField() {
 
               motion.vx += travelX * impulse;
               motion.vy += travelY * impulse;
+            }
+
+            if (insidePointer && scrollStrength > 0.012) {
+              const verticalOffset = fieldY - fieldCenterY;
+              const horizontalOffset = Math.abs(fieldX - fieldCenterX);
+              const waveBand = Math.exp(-(verticalOffset * verticalOffset) / (2 * 30 * 30));
+              const barEnvelope = Math.pow(Math.max(0, 1 - horizontalOffset / radius), 0.45);
+              const impulse = waveBand * barEnvelope * eased * scrollStrength * 1.35;
+
+              motion.vy += Math.sign(scrollVelocity) * impulse;
             }
 
             motion.vx += -motion.dx * 0.035;

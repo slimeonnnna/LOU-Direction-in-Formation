@@ -60,7 +60,7 @@ export default function PointerField() {
       dotMotion.clear();
     };
 
-    const draw = () => {
+    const draw = (time = 0) => {
       const scrollY = window.scrollY;
       const targetDocumentY = target.y + scrollY;
       if (!fieldAnchor.ready) {
@@ -79,32 +79,39 @@ export default function PointerField() {
       target.vy *= 0.82;
       context.clearRect(0, 0, width, height);
 
-      if (current.opacity > 0.002) {
-        const fieldCenterX = current.x;
-        const fieldCenterY = current.y;
-        const fieldMargin = radius + 36;
-        const startX = Math.max(0, Math.floor((current.x - fieldMargin) / spacing) * spacing);
-        const endX = Math.min(width, Math.ceil((current.x + fieldMargin) / spacing) * spacing);
-        const startDocumentY = Math.floor((fieldAnchor.documentY - fieldMargin) / spacing) * spacing;
-        const endDocumentY = Math.ceil((fieldAnchor.documentY + fieldMargin) / spacing) * spacing;
+      const fieldCenterX = current.x;
+      const fieldCenterY = current.y;
+      const startX = Math.floor(-24 / spacing) * spacing;
+      const endX = Math.ceil((width + 24) / spacing) * spacing;
+      const startDocumentY = Math.floor((scrollY - 24) / spacing) * spacing;
+      const endDocumentY = Math.ceil((scrollY + height + 24) / spacing) * spacing;
+      const rawPointerSpeed = Math.hypot(current.vx, current.vy);
+      const pointerSpeed = Math.min(rawPointerSpeed, 26) / 26;
+      const opacityPaths = Array.from({ length: 11 }, () => new Path2D());
 
-        for (let documentY = startDocumentY; documentY <= endDocumentY; documentY += spacing) {
-          const y = documentY - scrollY;
-          for (let x = startX; x <= endX; x += spacing) {
-            const fieldX = x;
-            const fieldY = y;
-            const distance = Math.hypot(fieldX - fieldCenterX, fieldY - fieldCenterY);
-            if (distance >= radius) continue;
+      for (let documentY = startDocumentY; documentY <= endDocumentY; documentY += spacing) {
+        const restingY = documentY - scrollY;
+        for (let x = startX; x <= endX; x += spacing) {
+          const phaseA = documentY * 0.017 + x * 0.003 + time * 0.00022 + Math.sin(x * 0.006) * 0.75;
+          const phaseB = x * 0.015 - documentY * 0.002 - time * 0.00016 + Math.sin(documentY * 0.005) * 0.9;
+          const waveX = Math.sin(phaseA) * 0.72 + Math.sin(phaseB * 0.58) * 0.46;
+          const waveY = Math.sin(phaseB) * 1.18 + Math.sin(phaseA * 0.63) * 0.68;
+          const fieldX = x + waveX;
+          const fieldY = restingY + waveY;
+          const distance = Math.hypot(fieldX - fieldCenterX, fieldY - fieldCenterY);
+          const proximity = Math.max(0, 1 - distance / radius);
+          const eased = proximity * proximity * (3 - 2 * proximity);
+          const insidePointer = eased > 0 && current.opacity > 0.002;
+          const key = `${x}:${documentY}`;
+          let motion = dotMotion.get(key);
 
-            const proximity = 1 - distance / radius;
-            const eased = proximity * proximity * (3 - 2 * proximity);
-            const key = `${x}:${documentY}`;
-            const motion = dotMotion.get(key) ?? { dx: 0, dy: 0, vx: 0, vy: 0 };
-            if (!dotMotion.has(key)) dotMotion.set(key, motion);
+          if (insidePointer && !motion) {
+            motion = { dx: 0, dy: 0, vx: 0, vy: 0 };
+            dotMotion.set(key, motion);
+          }
 
-            const rawPointerSpeed = Math.hypot(current.vx, current.vy);
-            const pointerSpeed = Math.min(rawPointerSpeed, 26) / 26;
-            if (pointerSpeed > 0.012 && distance > 0.1) {
+          if (motion) {
+            if (insidePointer && pointerSpeed > 0.012 && distance > 0.1) {
               const travelX = current.vx / rawPointerSpeed;
               const travelY = current.vy / rawPointerSpeed;
               const normalX = -travelY;
@@ -127,16 +134,27 @@ export default function PointerField() {
             motion.dx = Math.max(-16, Math.min(16, motion.dx + motion.vx));
             motion.dy = Math.max(-16, Math.min(16, motion.dy + motion.vy));
 
-            const dotRadius = 0.16 + eased * 1.38;
-            const alpha = current.opacity * eased * 0.1;
-
-            context.beginPath();
-            context.arc(fieldX + motion.dx, fieldY + motion.dy, dotRadius, 0, Math.PI * 2);
-            context.fillStyle = `rgba(32, 32, 30, ${alpha})`;
-            context.fill();
+            if (!insidePointer && Math.abs(motion.dx) + Math.abs(motion.dy) + Math.abs(motion.vx) + Math.abs(motion.vy) < 0.01) {
+              dotMotion.delete(key);
+              motion = undefined;
+            }
           }
+
+          const opacityStep = Math.min(10, Math.round(current.opacity * eased * 10));
+          opacityPaths[opacityStep].arc(
+            fieldX + (motion?.dx ?? 0),
+            fieldY + (motion?.dy ?? 0),
+            0.46,
+            0,
+            Math.PI * 2,
+          );
         }
       }
+
+      opacityPaths.forEach((path, step) => {
+        context.fillStyle = `rgba(32, 32, 30, ${0.1 + step * 0.005})`;
+        context.fill(path);
+      });
 
       frame = window.requestAnimationFrame(draw);
     };

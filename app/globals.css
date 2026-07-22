@@ -13,14 +13,21 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--paper); }
 body {
+  --grid-offset: 2.35vw;
+  --grid-size: calc((100vw - 4.7vw) / 12);
+  --dot-size: 18px;
   margin: 0;
   color: var(--ink);
   background:
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(32,32,30,.075) 0) 2.35vw 0 / calc((100vw - 4.7vw) / 12) 100%,
-    radial-gradient(ellipse 54% 34% at 16% 16%, rgba(249,246,239,.98) 0 31%, rgba(249,246,239,.78) 49%, rgba(249,246,239,0) 76%) 0 0 / 100% 1480px repeat-y,
-    radial-gradient(ellipse 46% 42% at 84% 58%, rgba(247,244,237,.96) 0 29%, rgba(247,244,237,.7) 48%, rgba(247,244,237,0) 75%) 0 430px / 100% 1770px repeat-y,
-    radial-gradient(ellipse 32% 24% at 48% 84%, rgba(250,247,241,.9) 0 28%, rgba(250,247,241,.58) 51%, rgba(250,247,241,0) 78%) 0 760px / 100% 1630px repeat-y,
-    radial-gradient(circle, rgba(32,32,30,.16) .72px, transparent .92px) 0 0 / 18px 18px,
+    linear-gradient(90deg, transparent calc(100% - 1px), rgba(32,32,30,.075) 0) var(--grid-offset) 0 / var(--grid-size) 100% repeat,
+    radial-gradient(ellipse 38% 5.5% at 18% 9%, rgba(255,252,246,.96) 0 18%, rgba(255,252,246,.8) 42%, rgba(255,252,246,.34) 68%, rgba(255,252,246,0) 100%) 0 0 / 100% 100% no-repeat,
+    radial-gradient(ellipse 29% 4% at 78% 21%, rgba(253,250,244,.94) 0 17%, rgba(253,250,244,.76) 41%, rgba(253,250,244,.3) 69%, rgba(253,250,244,0) 100%) 0 0 / 100% 100% no-repeat,
+    radial-gradient(ellipse 35% 5% at 27% 36%, rgba(255,251,245,.92) 0 19%, rgba(255,251,245,.74) 43%, rgba(255,251,245,.28) 70%, rgba(255,251,245,0) 100%) 0 0 / 100% 100% no-repeat,
+    radial-gradient(ellipse 40% 6.5% at 71% 50%, rgba(254,251,245,.96) 0 16%, rgba(254,251,245,.78) 40%, rgba(254,251,245,.32) 68%, rgba(254,251,245,0) 100%) 0 0 / 100% 100% no-repeat,
+    radial-gradient(ellipse 28% 4% at 13% 65%, rgba(255,252,247,.9) 0 18%, rgba(255,252,247,.7) 44%, rgba(255,252,247,.26) 71%, rgba(255,252,247,0) 100%) 0 0 / 100% 100% no-repeat,
+    radial-gradient(ellipse 33% 5% at 82% 79%, rgba(253,250,244,.94) 0 17%, rgba(253,250,244,.74) 42%, rgba(253,250,244,.3) 69%, rgba(253,250,244,0) 100%) 0 0 / 100% 100% no-repeat,
+    radial-gradient(ellipse 37% 5.5% at 43% 92%, rgba(255,252,246,.92) 0 18%, rgba(255,252,246,.72) 43%, rgba(255,252,246,.28) 70%, rgba(255,252,246,0) 100%) 0 0 / 100% 100% no-repeat,
+    radial-gradient(circle, rgba(32,32,30,.16) .72px, transparent .92px) 0 0 / var(--dot-size) var(--dot-size) repeat,
     var(--paper);
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
@@ -168,13 +175,9 @@ main { position: relative; }
 
 @media (max-width: 900px) {
   body {
-    background-size:
-      calc((100vw - 32px) / 6) 100%,
-      100% 1180px,
-      100% 1380px,
-      100% 1260px,
-      16px 16px;
-    background-position: 16px 0, 0 0, 0 340px, 0 620px, 0 0;
+    --grid-offset: 16px;
+    --grid-size: calc((100vw - 32px) / 6);
+    --dot-size: 16px;
   }
   .site-header { height: 72px; padding: 0 20px; }
   .brand { font-size: 1.5rem; }

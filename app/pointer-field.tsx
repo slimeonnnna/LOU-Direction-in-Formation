@@ -11,6 +11,14 @@ type DotMotion = {
   vy: number;
 };
 
+type SweepWave = {
+  active: boolean;
+  ux: number;
+  uy: number;
+  front: number;
+  strength: number;
+};
+
 export default function PointerField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -18,7 +26,7 @@ export default function PointerField() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const cursor = cursorRef.current;
-    const media = window.matchMedia("(pointer: fine) and (prefers-reduced-motion: no-preference)");
+    const media = window.matchMedia("(pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference)");
     if (!canvas || !cursor || !media.matches) return;
 
     const context = canvas.getContext("2d");
@@ -38,6 +46,14 @@ export default function PointerField() {
     const dotMotion = new Map<string, DotMotion>();
     const spacing = 18;
     const radius = 220;
+    const scrollWave: SweepWave = {
+      active: false,
+      ux: 0,
+      uy: 1,
+      front: -radius,
+      strength: 0,
+    };
+    const fieldDrift = { x: 0, y: 0, vx: 0, vy: 0 };
     let frame = 0;
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -53,27 +69,47 @@ export default function PointerField() {
       canvas.style.height = `${height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       dotMotion.clear();
+      fieldDrift.x = 0;
+      fieldDrift.y = 0;
+      fieldDrift.vx = 0;
+      fieldDrift.vy = 0;
     };
 
     const draw = () => {
-      current.x += (target.x - current.x) * 0.12;
-      current.y += (target.y - current.y) * 0.12;
+      current.x += (target.x - current.x) * 0.055;
+      current.y += (target.y - current.y) * 0.055;
       current.opacity += (target.opacity - current.opacity) * 0.1;
       current.vx += (target.vx - current.vx) * 0.18;
       current.vy += (target.vy - current.vy) * 0.18;
       target.vx *= 0.82;
       target.vy *= 0.82;
+      fieldDrift.vx += -fieldDrift.x * 0.024;
+      fieldDrift.vy += -fieldDrift.y * 0.024;
+      fieldDrift.vx *= 0.89;
+      fieldDrift.vy *= 0.89;
+      fieldDrift.x = Math.max(-30, Math.min(30, fieldDrift.x + fieldDrift.vx));
+      fieldDrift.y = Math.max(-30, Math.min(30, fieldDrift.y + fieldDrift.vy));
+      if (scrollWave.active) {
+        scrollWave.front += 11.5;
+        scrollWave.strength *= 0.992;
+        if (scrollWave.front > radius + 38 || scrollWave.strength < 0.025) {
+          scrollWave.active = false;
+        }
+      }
       context.clearRect(0, 0, width, height);
 
       if (current.opacity > 0.002) {
-        const startX = Math.max(0, Math.floor((current.x - radius) / spacing) * spacing);
-        const endX = Math.min(width, Math.ceil((current.x + radius) / spacing) * spacing);
-        const startY = Math.max(0, Math.floor((current.y - radius) / spacing) * spacing);
-        const endY = Math.min(height, Math.ceil((current.y + radius) / spacing) * spacing);
+        const fieldMargin = radius + 36;
+        const startX = Math.max(0, Math.floor((current.x - fieldMargin) / spacing) * spacing);
+        const endX = Math.min(width, Math.ceil((current.x + fieldMargin) / spacing) * spacing);
+        const startY = Math.max(0, Math.floor((current.y - fieldMargin) / spacing) * spacing);
+        const endY = Math.min(height, Math.ceil((current.y + fieldMargin) / spacing) * spacing);
 
         for (let y = startY; y <= endY; y += spacing) {
           for (let x = startX; x <= endX; x += spacing) {
-            const distance = Math.hypot(x - current.x, y - current.y);
+            const fieldX = x + fieldDrift.x;
+            const fieldY = y + fieldDrift.y;
+            const distance = Math.hypot(fieldX - current.x, fieldY - current.y);
             if (distance >= radius) continue;
 
             const proximity = 1 - distance / radius;
@@ -85,19 +121,33 @@ export default function PointerField() {
             const rawPointerSpeed = Math.hypot(current.vx, current.vy);
             const pointerSpeed = Math.min(rawPointerSpeed, 26) / 26;
             if (pointerSpeed > 0.012 && distance > 0.1) {
-              const outwardX = (x - current.x) / distance;
-              const outwardY = (y - current.y) / distance;
               const travelX = current.vx / rawPointerSpeed;
               const travelY = current.vy / rawPointerSpeed;
               const normalX = -travelY;
               const normalY = travelX;
-              const side = Math.sign((x - current.x) * normalX + (y - current.y) * normalY) || 1;
-              const wave = Math.sin(proximity * Math.PI);
+              const along = (fieldX - current.x) * travelX + (fieldY - current.y) * travelY;
+              const across = Math.abs((fieldX - current.x) * normalX + (fieldY - current.y) * normalY);
+              const waveBand = Math.exp(-(along * along) / (2 * 24 * 24));
+              const barEnvelope = Math.pow(Math.max(0, 1 - across / radius), 0.45);
               const dragGain = target.pressed ? 2.05 : 1;
-              const impulse = eased * (0.3 + wave * 0.7) * pointerSpeed * dragGain;
+              const impulse = waveBand * barEnvelope * eased * pointerSpeed * dragGain * 1.55;
 
-              motion.vx += (outwardX * 0.45 + normalX * side * 1.35) * impulse;
-              motion.vy += (outwardY * 0.45 + normalY * side * 1.35) * impulse;
+              motion.vx += travelX * impulse;
+              motion.vy += travelY * impulse;
+            }
+
+            if (scrollWave.active) {
+              const waveNormalX = -scrollWave.uy;
+              const waveNormalY = scrollWave.ux;
+              const alongWave = (fieldX - current.x) * scrollWave.ux + (fieldY - current.y) * scrollWave.uy;
+              const acrossWave = Math.abs((fieldX - current.x) * waveNormalX + (fieldY - current.y) * waveNormalY);
+              const distanceToFront = alongWave - scrollWave.front;
+              const waveBand = Math.exp(-(distanceToFront * distanceToFront) / (2 * 27 * 27));
+              const barEnvelope = Math.pow(Math.max(0, 1 - acrossWave / radius), 0.4);
+              const impulse = waveBand * barEnvelope * eased * scrollWave.strength * 0.72;
+
+              motion.vx += scrollWave.ux * impulse;
+              motion.vy += scrollWave.uy * impulse;
             }
 
             motion.vx += -motion.dx * 0.055;
@@ -108,10 +158,10 @@ export default function PointerField() {
             motion.dy = Math.max(-16, Math.min(16, motion.dy + motion.vy));
 
             const dotRadius = 0.28 + eased * 2.45;
-            const alpha = current.opacity * eased * 0.31;
+            const alpha = current.opacity * eased * 0.23;
 
             context.beginPath();
-            context.arc(x + motion.dx, y + motion.dy, dotRadius, 0, Math.PI * 2);
+            context.arc(fieldX + motion.dx, fieldY + motion.dy, dotRadius, 0, Math.PI * 2);
             context.fillStyle = `rgba(32, 32, 30, ${alpha})`;
             context.fill();
           }
@@ -125,6 +175,10 @@ export default function PointerField() {
       const entering = target.opacity === 0;
       target.vx = entering ? 0 : Math.max(-32, Math.min(32, event.clientX - target.x));
       target.vy = entering ? 0 : Math.max(-32, Math.min(32, event.clientY - target.y));
+      if (!entering) {
+        fieldDrift.vx += target.vx * 0.025;
+        fieldDrift.vy += target.vy * 0.025;
+      }
       target.x = event.clientX;
       target.y = event.clientY;
       target.opacity = 1;
@@ -141,6 +195,24 @@ export default function PointerField() {
       cursor.dataset.visible = "false";
     };
 
+    const wheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaY) < 1) return;
+      const direction = Math.sign(event.deltaY);
+      const strength = Math.min(1.45, 0.72 + Math.abs(event.deltaY) / 180);
+
+      if (!scrollWave.active || scrollWave.uy !== direction || scrollWave.front > radius * 0.68) {
+        scrollWave.active = true;
+        scrollWave.ux = 0;
+        scrollWave.uy = direction;
+        scrollWave.front = -radius - 22;
+        scrollWave.strength = strength;
+      } else {
+        scrollWave.strength = Math.min(1.65, scrollWave.strength + strength * 0.16);
+      }
+      fieldDrift.vy += direction * Math.min(5.4, 1.8 + Math.abs(event.deltaY) * 0.026);
+      target.opacity = 1;
+    };
+
     const down = () => {
       target.pressed = true;
       cursor.dataset.pressed = "true";
@@ -154,6 +226,7 @@ export default function PointerField() {
     draw();
     window.addEventListener("resize", resize);
     window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("wheel", wheel, { passive: true });
     document.documentElement.addEventListener("mouseleave", leave);
     window.addEventListener("blur", leave);
     window.addEventListener("pointerdown", down, { passive: true });
@@ -163,6 +236,7 @@ export default function PointerField() {
       window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", move);
+      window.removeEventListener("wheel", wheel);
       document.documentElement.removeEventListener("mouseleave", leave);
       window.removeEventListener("blur", leave);
       window.removeEventListener("pointerdown", down);

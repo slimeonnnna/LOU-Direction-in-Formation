@@ -81,9 +81,13 @@ button { font: inherit; color: inherit; }
 .observation-cursor[data-interactive="true"] span { transform: translate(-50%, -50%) scale(.72); }
 .observation-cursor[data-pressed="true"] span { transform: translate(-50%, -50%) scale(1.65); }
 
-@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+@media (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
   .pointer-system-active, .pointer-system-active body,
   .pointer-system-active a, .pointer-system-active button { cursor: none; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .pointer-field, .observation-cursor { display: none !important; }
 }
 
 .skip-link {

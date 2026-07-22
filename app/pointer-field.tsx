@@ -37,6 +37,7 @@ export default function PointerField() {
     const current = { ...target };
     const dotMotion = new Map<string, DotMotion>();
     const spacing = 14;
+    const dotRadius = 0.72;
     const radius = 320;
     const fieldAnchor = {
       x: target.x,
@@ -148,11 +149,11 @@ export default function PointerField() {
           const opacityStep = Math.min(10, Math.round(current.opacity * eased * 10));
           const dotX = fieldX + (motion?.dx ?? 0);
           const dotY = fieldY + (motion?.dy ?? 0);
-          opacityPaths[opacityStep].moveTo(dotX + 0.46, dotY);
+          opacityPaths[opacityStep].moveTo(dotX + dotRadius, dotY);
           opacityPaths[opacityStep].arc(
             dotX,
             dotY,
-            0.46,
+            dotRadius,
             0,
             Math.PI * 2,
           );

@@ -83,12 +83,12 @@ export default function PointerField() {
       current.vy += (target.vy - current.vy) * 0.18;
       target.vx *= 0.82;
       target.vy *= 0.82;
-      fieldDrift.vx += -fieldDrift.x * 0.024;
-      fieldDrift.vy += -fieldDrift.y * 0.024;
-      fieldDrift.vx *= 0.89;
-      fieldDrift.vy *= 0.89;
-      fieldDrift.x = Math.max(-30, Math.min(30, fieldDrift.x + fieldDrift.vx));
-      fieldDrift.y = Math.max(-30, Math.min(30, fieldDrift.y + fieldDrift.vy));
+      fieldDrift.vx += -fieldDrift.x * 0.018;
+      fieldDrift.vy += -fieldDrift.y * 0.018;
+      fieldDrift.vx *= 0.92;
+      fieldDrift.vy *= 0.92;
+      fieldDrift.x = Math.max(-64, Math.min(64, fieldDrift.x + fieldDrift.vx));
+      fieldDrift.y = Math.max(-64, Math.min(64, fieldDrift.y + fieldDrift.vy));
       if (scrollWave.active) {
         scrollWave.front += 11.5;
         scrollWave.strength *= 0.992;
@@ -99,6 +99,8 @@ export default function PointerField() {
       context.clearRect(0, 0, width, height);
 
       if (current.opacity > 0.002) {
+        const fieldCenterX = current.x + fieldDrift.x;
+        const fieldCenterY = current.y + fieldDrift.y;
         const fieldMargin = radius + 36;
         const startX = Math.max(0, Math.floor((current.x - fieldMargin) / spacing) * spacing);
         const endX = Math.min(width, Math.ceil((current.x + fieldMargin) / spacing) * spacing);
@@ -109,7 +111,7 @@ export default function PointerField() {
           for (let x = startX; x <= endX; x += spacing) {
             const fieldX = x + fieldDrift.x;
             const fieldY = y + fieldDrift.y;
-            const distance = Math.hypot(fieldX - current.x, fieldY - current.y);
+            const distance = Math.hypot(fieldX - fieldCenterX, fieldY - fieldCenterY);
             if (distance >= radius) continue;
 
             const proximity = 1 - distance / radius;
@@ -125,8 +127,8 @@ export default function PointerField() {
               const travelY = current.vy / rawPointerSpeed;
               const normalX = -travelY;
               const normalY = travelX;
-              const along = (fieldX - current.x) * travelX + (fieldY - current.y) * travelY;
-              const across = Math.abs((fieldX - current.x) * normalX + (fieldY - current.y) * normalY);
+              const along = (fieldX - fieldCenterX) * travelX + (fieldY - fieldCenterY) * travelY;
+              const across = Math.abs((fieldX - fieldCenterX) * normalX + (fieldY - fieldCenterY) * normalY);
               const waveBand = Math.exp(-(along * along) / (2 * 24 * 24));
               const barEnvelope = Math.pow(Math.max(0, 1 - across / radius), 0.45);
               const dragGain = target.pressed ? 2.05 : 1;
@@ -139,8 +141,8 @@ export default function PointerField() {
             if (scrollWave.active) {
               const waveNormalX = -scrollWave.uy;
               const waveNormalY = scrollWave.ux;
-              const alongWave = (fieldX - current.x) * scrollWave.ux + (fieldY - current.y) * scrollWave.uy;
-              const acrossWave = Math.abs((fieldX - current.x) * waveNormalX + (fieldY - current.y) * waveNormalY);
+              const alongWave = (fieldX - fieldCenterX) * scrollWave.ux + (fieldY - fieldCenterY) * scrollWave.uy;
+              const acrossWave = Math.abs((fieldX - fieldCenterX) * waveNormalX + (fieldY - fieldCenterY) * waveNormalY);
               const distanceToFront = alongWave - scrollWave.front;
               const waveBand = Math.exp(-(distanceToFront * distanceToFront) / (2 * 27 * 27));
               const barEnvelope = Math.pow(Math.max(0, 1 - acrossWave / radius), 0.4);
@@ -158,7 +160,7 @@ export default function PointerField() {
             motion.dy = Math.max(-16, Math.min(16, motion.dy + motion.vy));
 
             const dotRadius = 0.28 + eased * 2.45;
-            const alpha = current.opacity * eased * 0.23;
+            const alpha = current.opacity * eased * 0.05;
 
             context.beginPath();
             context.arc(fieldX + motion.dx, fieldY + motion.dy, dotRadius, 0, Math.PI * 2);
@@ -209,7 +211,7 @@ export default function PointerField() {
       } else {
         scrollWave.strength = Math.min(1.65, scrollWave.strength + strength * 0.16);
       }
-      fieldDrift.vy += direction * Math.min(5.4, 1.8 + Math.abs(event.deltaY) * 0.026);
+      fieldDrift.vy += direction * Math.min(9.2, 3.4 + Math.abs(event.deltaY) * 0.038);
       target.opacity = 1;
     };
 

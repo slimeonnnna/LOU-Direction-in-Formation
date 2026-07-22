@@ -4,7 +4,7 @@ An open-source editorial portfolio template for people whose careers are still t
 
 一个面向“仍在成长中的人”的开源编辑式个人作品集模板。
 
-[Live Demo / 在线预览](https://lou-direction-in-formation.vercel.app/)
+[Live Demo / 在线预览](https://lou-direction-in-formation.cautiousslug.chatgpt.site)
 
 ---
 
@@ -53,6 +53,18 @@ Validation:
 npm run build
 npm run lint
 ```
+
+### Cloudflare Pages
+
+Use the **Next.js (Static HTML Export)** preset with:
+
+- Build command: `npm run build:pages`
+- Build output directory: `out`
+- Root directory: `/`
+- Production branch: `main`
+
+Do not use `npx wrangler deploy` for a Pages project. For a manual Pages upload,
+run `npm run deploy:pages` instead.
 
 ### Stack
 
@@ -109,6 +121,18 @@ npm run dev
 npm run build
 npm run lint
 ```
+
+### Cloudflare Pages 部署
+
+选择 **Next.js (Static HTML Export)** 预设，并使用：
+
+- 构建命令：`npm run build:pages`
+- 构建输出目录：`out`
+- 根目录：`/`
+- 生产分支：`main`
+
+Pages 项目不要使用 `npx wrangler deploy`。如需手动上传 Pages，运行
+`npm run deploy:pages`。
 
 ## License / 许可证
 

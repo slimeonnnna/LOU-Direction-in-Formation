@@ -10,6 +10,14 @@ if [[ "${VERCEL:-}" == "1" ]]; then
   exec "${PWD}/node_modules/.bin/next" build
 fi
 
+# Cloudflare Pages needs a static export in out/, not the Vinext Worker bundle
+# used by ChatGPT Sites. CF_PAGES is provided by Pages; BUILD_TARGET keeps the
+# same build reproducible locally and in other CI environments.
+if [[ "${CF_PAGES:-}" == "1" || "${BUILD_TARGET:-}" == "cloudflare-pages" ]]; then
+  echo "Running static Next.js export for Cloudflare Pages..."
+  exec "${PWD}/node_modules/.bin/next" build
+fi
+
 if [[ "${SITES_ENV_READY:-}" != "1" ]]; then
   # Re-enter through bash explicitly. GitHub/Cloudflare checkouts may not
   # preserve executable bits on repository scripts.

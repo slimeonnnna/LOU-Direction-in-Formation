@@ -4,6 +4,13 @@ import { useEffect, useRef } from "react";
 
 const INTERACTIVE_SELECTOR = "a, button, [role='button']";
 
+type DotMotion = {
+  dx: number;
+  dy: number;
+  vx: number;
+  vy: number;
+};
+
 export default function PointerField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -19,8 +26,16 @@ export default function PointerField() {
 
     document.documentElement.classList.add("pointer-system-active");
 
-    const target = { x: window.innerWidth / 2, y: window.innerHeight / 2, opacity: 0 };
+    const target = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      opacity: 0,
+      vx: 0,
+      vy: 0,
+      pressed: false,
+    };
     const current = { ...target };
+    const dotMotion = new Map<string, DotMotion>();
     const spacing = 18;
     const radius = 220;
     let frame = 0;
@@ -37,12 +52,17 @@ export default function PointerField() {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      dotMotion.clear();
     };
 
     const draw = () => {
       current.x += (target.x - current.x) * 0.12;
       current.y += (target.y - current.y) * 0.12;
       current.opacity += (target.opacity - current.opacity) * 0.1;
+      current.vx += (target.vx - current.vx) * 0.18;
+      current.vy += (target.vy - current.vy) * 0.18;
+      target.vx *= 0.82;
+      target.vy *= 0.82;
       context.clearRect(0, 0, width, height);
 
       if (current.opacity > 0.002) {
@@ -58,11 +78,40 @@ export default function PointerField() {
 
             const proximity = 1 - distance / radius;
             const eased = proximity * proximity * (3 - 2 * proximity);
+            const key = `${x}:${y}`;
+            const motion = dotMotion.get(key) ?? { dx: 0, dy: 0, vx: 0, vy: 0 };
+            if (!dotMotion.has(key)) dotMotion.set(key, motion);
+
+            const rawPointerSpeed = Math.hypot(current.vx, current.vy);
+            const pointerSpeed = Math.min(rawPointerSpeed, 26) / 26;
+            if (pointerSpeed > 0.012 && distance > 0.1) {
+              const outwardX = (x - current.x) / distance;
+              const outwardY = (y - current.y) / distance;
+              const travelX = current.vx / rawPointerSpeed;
+              const travelY = current.vy / rawPointerSpeed;
+              const normalX = -travelY;
+              const normalY = travelX;
+              const side = Math.sign((x - current.x) * normalX + (y - current.y) * normalY) || 1;
+              const wave = Math.sin(proximity * Math.PI);
+              const dragGain = target.pressed ? 2.05 : 1;
+              const impulse = eased * (0.3 + wave * 0.7) * pointerSpeed * dragGain;
+
+              motion.vx += (outwardX * 0.45 + normalX * side * 1.35) * impulse;
+              motion.vy += (outwardY * 0.45 + normalY * side * 1.35) * impulse;
+            }
+
+            motion.vx += -motion.dx * 0.055;
+            motion.vy += -motion.dy * 0.055;
+            motion.vx *= 0.84;
+            motion.vy *= 0.84;
+            motion.dx = Math.max(-16, Math.min(16, motion.dx + motion.vx));
+            motion.dy = Math.max(-16, Math.min(16, motion.dy + motion.vy));
+
             const dotRadius = 0.28 + eased * 2.45;
-            const alpha = current.opacity * eased * 0.48;
+            const alpha = current.opacity * eased * 0.31;
 
             context.beginPath();
-            context.arc(x, y, dotRadius, 0, Math.PI * 2);
+            context.arc(x + motion.dx, y + motion.dy, dotRadius, 0, Math.PI * 2);
             context.fillStyle = `rgba(32, 32, 30, ${alpha})`;
             context.fill();
           }
@@ -73,6 +122,9 @@ export default function PointerField() {
     };
 
     const move = (event: PointerEvent) => {
+      const entering = target.opacity === 0;
+      target.vx = entering ? 0 : Math.max(-32, Math.min(32, event.clientX - target.x));
+      target.vy = entering ? 0 : Math.max(-32, Math.min(32, event.clientY - target.y));
       target.x = event.clientX;
       target.y = event.clientY;
       target.opacity = 1;
@@ -84,11 +136,19 @@ export default function PointerField() {
 
     const leave = () => {
       target.opacity = 0;
+      target.vx = 0;
+      target.vy = 0;
       cursor.dataset.visible = "false";
     };
 
-    const down = () => { cursor.dataset.pressed = "true"; };
-    const up = () => { cursor.dataset.pressed = "false"; };
+    const down = () => {
+      target.pressed = true;
+      cursor.dataset.pressed = "true";
+    };
+    const up = () => {
+      target.pressed = false;
+      cursor.dataset.pressed = "false";
+    };
 
     resize();
     draw();

@@ -185,7 +185,7 @@ export default function Home() {
           <span className="field-note" aria-hidden="true">OBSERVATION / 00 <i /> 12 · 24 · 36</span>
           <p className="chapter-label">00 / INTRO</p>
           <div className="hero-title-wrap reveal">
-            <h1 id="hero-title"><span>你好，</span><br />我是 <em>Lou</em>。</h1>
+            <h1 id="hero-title"><span>你好，</span><br /><span className="hero-name">我是 <em>Lou</em>。</span></h1>
           </div>
           <div className="hero-copy reveal reveal--delay">
             <p className="hero-lead">我并不是一开始就知道<br />自己会做 SEO。</p>

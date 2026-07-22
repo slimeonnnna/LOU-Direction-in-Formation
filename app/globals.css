@@ -120,6 +120,7 @@ button { font: inherit; color: inherit; }
 .nav a:hover::after, .nav a:focus-visible::after, .nav a[aria-current="page"]::after,
 .continue-link:hover::after, .continue-link:focus-visible::after { transform: scaleX(1); transform-origin: left; }
 .menu-button { display: none; border: 0; background: none; }
+.menu-labels, .menu-mark { display: none; }
 
 main { position: relative; z-index: 2; }
 .footer { position: relative; z-index: 2; }
@@ -241,12 +242,115 @@ main { position: relative; z-index: 2; }
     --grid-size: calc((100vw - 32px) / 6);
   }
   .site-header { height: 72px; padding: 0 20px; }
-  .brand { font-size: 1.5rem; }
-  .menu-button { display: block; position: relative; z-index: 32; min-width: 44px; min-height: 44px; padding: 10px 0; }
-  .nav { display: none; position: fixed; inset: 0; padding: 110px 24px 40px; background: var(--paper); flex-direction: column; align-items: stretch; gap: 0; }
-  .nav.is-open { display: flex; }
-  .nav a { display: flex; align-items: baseline; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--rule); font-family: var(--serif); font-size: 38px; }
+  .brand { position: relative; z-index: 32; font-size: 1.5rem; }
+  .menu-button {
+    display: flex;
+    position: relative;
+    z-index: 32;
+    min-width: 78px;
+    min-height: 44px;
+    padding: 10px 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .menu-labels {
+    display: grid;
+    width: 2em;
+    height: 1.35em;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  .menu-labels span {
+    grid-area: 1 / 1;
+    transition: transform .42s cubic-bezier(.22,.8,.2,1), opacity .28s ease;
+  }
+  .menu-labels span:last-child { opacity: 0; transform: translateY(110%); }
+  .menu-button.is-open .menu-labels span:first-child { opacity: 0; transform: translateY(-110%); }
+  .menu-button.is-open .menu-labels span:last-child { opacity: 1; transform: translateY(0); }
+  .menu-mark {
+    display: block;
+    position: relative;
+    width: 18px;
+    height: 14px;
+  }
+  .menu-mark i {
+    position: absolute;
+    right: 0;
+    width: 18px;
+    height: 1px;
+    background: var(--ink);
+    transform-origin: center;
+    transition: top .42s cubic-bezier(.22,.8,.2,1), transform .42s cubic-bezier(.22,.8,.2,1), background-color .25s ease;
+  }
+  .menu-mark i:first-child { top: 4px; }
+  .menu-mark i:last-child { top: 10px; width: 11px; }
+  .menu-button.is-open .menu-mark i { top: 7px; width: 18px; background: var(--accent); }
+  .menu-button.is-open .menu-mark i:first-child { transform: rotate(45deg); }
+  .menu-button.is-open .menu-mark i:last-child { transform: rotate(-45deg); }
+  .nav {
+    display: flex;
+    visibility: hidden;
+    position: fixed;
+    z-index: 31;
+    inset: 0;
+    padding: 110px 24px 40px;
+    background:
+      linear-gradient(90deg, transparent calc(100% - 1px), rgba(32,32,30,.065) 0) 16px 0 / calc((100vw - 32px) / 6) 100% repeat,
+      var(--paper);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    pointer-events: none;
+    transition: clip-path .58s cubic-bezier(.76,0,.24,1), opacity .32s ease, visibility 0s linear .58s;
+  }
+  .nav::before {
+    content: "INDEX / 00—04";
+    margin-bottom: 18px;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: .16em;
+  }
+  .nav::after {
+    content: "LOU · DIRECTION IN FORMATION";
+    margin-top: auto;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: .14em;
+  }
+  .nav.is-open {
+    visibility: visible;
+    opacity: 1;
+    clip-path: inset(0);
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+  .nav a {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--serif);
+    font-size: 38px;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: transform .44s cubic-bezier(.22,.8,.2,1), opacity .32s ease, color .2s ease;
+  }
+  .nav.is-open a { opacity: 1; transform: translateY(0); }
+  .nav.is-open a:nth-child(1) { transition-delay: .12s; }
+  .nav.is-open a:nth-child(2) { transition-delay: .16s; }
+  .nav.is-open a:nth-child(3) { transition-delay: .2s; }
+  .nav.is-open a:nth-child(4) { transition-delay: .24s; }
+  .nav.is-open a:nth-child(5) { transition-delay: .28s; }
   .nav a small { display: inline; font-family: var(--sans); font-size: 10px; color: var(--muted); }
+  .nav a[aria-current="page"] { color: var(--accent); }
   .chapter { padding: 110px 20px 90px; min-height: auto; scroll-margin-top: 76px; }
   .hero { min-height: 100svh; grid-template-columns: repeat(6, 1fr); grid-template-rows: auto auto 1fr auto; gap: 30px 16px; align-content: center; }
   .hero .chapter-label { grid-column: 5 / 7; margin: 0; }
@@ -356,4 +460,5 @@ main { position: relative; z-index: 2; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .nav, .nav a, .menu-labels span, .menu-mark i { transition-delay: 0s !important; }
 }

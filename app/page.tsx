@@ -149,6 +149,23 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [menuOpen]);
+
   return (
     <>
       <PointerField />
@@ -158,13 +175,18 @@ export default function Home() {
           <span>LOU</span><i>/</i><small>2026</small>
         </a>
         <button
-          className="menu-button"
+          className={menuOpen ? "menu-button is-open" : "menu-button"}
           type="button"
+          aria-label={menuOpen ? "关闭目录" : "打开目录"}
           aria-expanded={menuOpen}
           aria-controls="primary-nav"
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          {menuOpen ? "关闭" : "目录"}
+          <span className="menu-labels" aria-hidden="true">
+            <span>目录</span>
+            <span>关闭</span>
+          </span>
+          <span className="menu-mark" aria-hidden="true"><i /><i /></span>
         </button>
         <nav id="primary-nav" className={menuOpen ? "nav is-open" : "nav"} aria-label="主要导航">
           {nav.map(([label, id], index) => (

@@ -37,7 +37,7 @@ export default function PointerField() {
     const current = { ...target };
     const dotMotion = new Map<string, DotMotion>();
     const spacing = 14;
-    const dotRadius = 0.9;
+    const dotRadius = 1.1;
     const radius = 320;
     const fieldAnchor = {
       x: target.x,
@@ -61,7 +61,7 @@ export default function PointerField() {
       dotMotion.clear();
     };
 
-    const draw = (time = 0) => {
+    const draw = () => {
       const scrollY = window.scrollY;
       const targetDocumentY = target.y + scrollY;
       if (!fieldAnchor.ready) {
@@ -93,17 +93,8 @@ export default function PointerField() {
       for (let documentY = startDocumentY; documentY <= endDocumentY; documentY += spacing) {
         const restingY = documentY - scrollY;
         for (let x = startX; x <= endX; x += spacing) {
-          const irregularFront = Math.sin(x * 0.007 + time * 0.00008) * 1.15;
-          const primaryPhase = documentY * 0.022 + x * 0.0025 - time * 0.00035 + irregularFront;
-          const crossingPhase = documentY * 0.011 - x * 0.008 + time * 0.00018
-            + Math.sin(documentY * 0.004) * 0.7;
-          const shapedCrest = Math.sin(primaryPhase)
-            + Math.sin(primaryPhase * 2 + 0.9) * 0.32
-            + Math.sin(primaryPhase * 3 - 0.45) * 0.12;
-          const waveX = Math.sin(primaryPhase * 0.55 + crossingPhase * 0.24) * 1.35;
-          const waveY = shapedCrest * 6.6 + Math.sin(crossingPhase) * 2.8;
-          const fieldX = x + waveX;
-          const fieldY = restingY + waveY;
+          const fieldX = x;
+          const fieldY = restingY;
           const distance = Math.hypot(fieldX - fieldCenterX, fieldY - fieldCenterY);
           const proximity = Math.max(0, 1 - distance / radius);
           const eased = proximity * proximity * (3 - 2 * proximity);
@@ -133,12 +124,12 @@ export default function PointerField() {
               motion.vy += travelY * impulse;
             }
 
-            motion.vx += -motion.dx * 0.055;
-            motion.vy += -motion.dy * 0.055;
-            motion.vx *= 0.84;
-            motion.vy *= 0.84;
-            motion.dx = Math.max(-16, Math.min(16, motion.dx + motion.vx));
-            motion.dy = Math.max(-16, Math.min(16, motion.dy + motion.vy));
+            motion.vx += -motion.dx * 0.035;
+            motion.vy += -motion.dy * 0.035;
+            motion.vx *= 0.91;
+            motion.vy *= 0.91;
+            motion.dx = Math.max(-18, Math.min(18, motion.dx + motion.vx));
+            motion.dy = Math.max(-18, Math.min(18, motion.dy + motion.vy));
 
             if (!insidePointer && Math.abs(motion.dx) + Math.abs(motion.dy) + Math.abs(motion.vx) + Math.abs(motion.vy) < 0.01) {
               dotMotion.delete(key);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PointerField from "./pointer-field";
+import SmoothScroll from "./smooth-scroll";
 
 const nav = [
   ["首页", "intro"],
@@ -150,6 +151,35 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const elements = Array.from(document.querySelectorAll<HTMLElement>(".enter"));
+
+    if (reduceMotion.matches) {
+      elements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+
+    document.documentElement.classList.add("motion-ready");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -10%", threshold: 0.08 },
+    );
+
+    elements.forEach((element) => observer.observe(element));
+
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove("motion-ready");
+    };
+  }, []);
+
+  useEffect(() => {
     if (!menuOpen) return;
 
     const previousOverflow = document.body.style.overflow;
@@ -168,6 +198,7 @@ export default function Home() {
 
   return (
     <>
+      <SmoothScroll paused={menuOpen} />
       <PointerField />
       <a className="skip-link" href="#content">跳到主要内容</a>
       <header className="site-header">
@@ -205,42 +236,42 @@ export default function Home() {
       <main id="content">
         <section className="hero chapter" id="intro" aria-labelledby="hero-title">
           <span className="field-note" aria-hidden="true">OBSERVATION / 00 <i /> 12 · 24 · 36</span>
-          <p className="chapter-label">00 / INTRO</p>
-          <div className="hero-title-wrap reveal">
+          <p className="chapter-label enter enter--1">00 / INTRO</p>
+          <div className="hero-title-wrap enter enter--2">
             <h1 id="hero-title"><span>你好，</span><br /><span className="hero-name">我是 <em>Lou</em>。</span></h1>
           </div>
-          <div className="hero-copy reveal reveal--delay">
+          <div className="hero-copy enter enter--3">
             <p className="hero-lead">我并不是一开始就知道<br />自己会做 SEO。</p>
             <p>但进入这个领域之后，<br />我开始认真对待每一个问题。</p>
             <small>SEO PRACTICE · 2023—NOW</small>
           </div>
-          <a className="continue-link" href="#beginning">继续向下阅读 <span aria-hidden="true">↓</span></a>
-          <p className="hero-note">在探索中，逐渐找到方向。</p>
+          <a className="continue-link enter enter--4" href="#beginning">继续向下阅读 <span aria-hidden="true">↓</span></a>
+          <p className="hero-note enter enter--5">在探索中，逐渐找到方向。</p>
           <span className="folio" aria-hidden="true">01</span>
         </section>
 
         <section className="beginning chapter" id="beginning" aria-labelledby="beginning-title">
           <span className="field-note" aria-hidden="true">FIELD NOTE / 01 <i /> MOVING</span>
           <header className="section-head">
-            <p className="chapter-label">01 / 起点</p>
-            <h2 id="beginning-title">方向并不是<br />一开始就有的。</h2>
+            <p className="chapter-label enter enter--1">01 / 起点</p>
+            <h2 className="enter enter--2" id="beginning-title">方向并不是<br />一开始就有的。</h2>
           </header>
           <div className="beginning-copy">
-            <p className="date">2023</p>
-            <p className="large-copy">我原本在学习阿里国际站运营。后来因为公司人员变化，被安排去接触独立站 SEO。</p>
-            <p>不是一个预先规划好的选择，更像是被推上了路。起初，我只是支持托管项目；但第一次完整交付之后，我开始认真想：下一次能不能做得更好一点。</p>
+            <p className="date enter enter--2">2023</p>
+            <p className="large-copy enter enter--3">我原本在学习阿里国际站运营。后来因为公司人员变化，被安排去接触独立站 SEO。</p>
+            <p className="enter enter--4">不是一个预先规划好的选择，更像是被推上了路。起初，我只是支持托管项目；但第一次完整交付之后，我开始认真想：下一次能不能做得更好一点。</p>
           </div>
           <aside className="margin-note">UNCERTAIN<br />BUT MOVING</aside>
         </section>
 
         <section className="turning chapter" aria-labelledby="turning-title">
           <header className="section-head section-head--wide">
-            <p className="chapter-label">02 / 转折</p>
-            <h2 id="turning-title">一些安静发生的变化，<br />让工作不再只是完成任务。</h2>
+            <p className="chapter-label enter enter--1">02 / 转折</p>
+            <h2 className="enter enter--2" id="turning-title">一些安静发生的变化，<br />让工作不再只是完成任务。</h2>
           </header>
           <div className="turn-list">
             {turns.map((turn) => (
-              <article className="turn" key={turn.no}>
+              <article className="turn enter" key={turn.no}>
                 <p className="turn-no">{turn.no}</p>
                 <p className="turn-date">{turn.date}</p>
                 <h3>{turn.title}</h3>
@@ -253,12 +284,12 @@ export default function Home() {
 
         <section className="work chapter" id="work" aria-labelledby="work-title">
           <header className="section-head section-head--wide">
-            <p className="chapter-label">03 / 项目</p>
-            <h2 id="work-title">能力不是列出来的。<br />它留在做过的事情里。</h2>
+            <p className="chapter-label enter enter--1">03 / 项目</p>
+            <h2 className="enter enter--2" id="work-title">能力不是列出来的。<br />它留在做过的事情里。</h2>
           </header>
           <div className="project-list">
             {projects.map((project) => (
-              <article className={`project ${project.className}`} key={project.name}>
+              <article className={`project enter ${project.className}`} key={project.name}>
                 <header>
                   <p>{project.index}</p>
                   <p>{project.scope}</p>
@@ -279,13 +310,13 @@ export default function Home() {
         <section className="capability chapter" id="capability" aria-labelledby="capability-title">
           <span className="field-note" aria-hidden="true">SIGNAL MAP / 04 <i /> 04 POINTS</span>
           <header className="section-head section-head--wide">
-            <p className="chapter-label">04 / 能力</p>
-            <h2 id="capability-title">这些能力，来自<br />一次次实际问题。</h2>
+            <p className="chapter-label enter enter--1">04 / 能力</p>
+            <h2 className="enter enter--2" id="capability-title">这些能力，来自<br />一次次实际问题。</h2>
           </header>
-          <p className="capability-intro">我正在建立的，不是一张越来越长的工具清单，而是一种更完整地处理问题的方式。</p>
+          <p className="capability-intro enter enter--3">我正在建立的，不是一张越来越长的工具清单，而是一种更完整地处理问题的方式。</p>
           <ol className="ability-list">
             {abilities.map((ability) => (
-              <li key={ability.no}>
+              <li className="enter" key={ability.no}>
                 <span className="ability-no">{ability.no}</span>
                 <h3>{ability.title}</h3>
                 <p>{ability.text}</p>
@@ -297,14 +328,14 @@ export default function Home() {
 
         <section className="contact chapter" id="contact" aria-labelledby="contact-title">
           <span className="field-note" aria-hidden="true">OPEN CHANNEL / 05 <i /> CONTINUE</span>
-          <p className="chapter-label">05 / 继续</p>
+          <p className="chapter-label enter enter--1">05 / 继续</p>
           <div className="contact-main">
-            <h2 id="contact-title">我还在继续。</h2>
-            <p>我知道自己的经验仍然有限。</p>
-            <p>所以我持续观察、持续学习，也持续把新的理解放进真实项目里验证。</p>
-            <p>我希望下一段经历，仍然能让我承担更多，也让我看见更多。</p>
+            <h2 className="enter enter--2" id="contact-title">我还在继续。</h2>
+            <p className="enter enter--3">我知道自己的经验仍然有限。</p>
+            <p className="enter enter--4">所以我持续观察、持续学习，也持续把新的理解放进真实项目里验证。</p>
+            <p className="enter enter--5">我希望下一段经历，仍然能让我承担更多，也让我看见更多。</p>
           </div>
-          <div className="contact-action">
+          <div className="contact-action enter enter--6">
             <p>如果你愿意，我们可以聊聊新的可能。</p>
             <div className="contact-links">
               <a className="email-link" href="mailto:914394053@qq.com">914394053@qq.com <span aria-hidden="true">↗</span></a>
@@ -317,7 +348,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="footer">
+      <footer className="footer enter">
         <p>© 2026 LOU</p>
         <div className="footer-social">
           <a href="https://github.com/slimeonnnna" target="_blank" rel="noreferrer">GITHUB ↗</a>

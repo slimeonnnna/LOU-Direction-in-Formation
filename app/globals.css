@@ -12,7 +12,7 @@
 
 * { box-sizing: border-box; }
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-padding-top: 96px;
   background: var(--paper);
   -webkit-text-size-adjust: 100%;
@@ -162,9 +162,28 @@ main { position: relative; z-index: 2; }
 .continue-link span { margin-left: 8px; }
 .hero-note { grid-column: 8 / 11; grid-row: 3; margin: 0; color: var(--muted); font-family: var(--serif); }
 .folio { position: absolute; right: 1.4vw; top: 48%; color: rgba(32,32,30,.18); font-family: var(--serif); font-size: 58px; }
-.reveal { animation: reveal .8s cubic-bezier(.2,.8,.2,1) both; }
-.reveal--delay { animation-delay: .16s; }
-@keyframes reveal { from { opacity: 0; transform: translateY(30px); clip-path: inset(100% 0 0); } to { opacity: 1; transform: none; clip-path: inset(0); } }
+.enter { --enter-delay: 0ms; }
+.enter--1 { --enter-delay: 40ms; }
+.enter--2 { --enter-delay: 130ms; }
+.enter--3 { --enter-delay: 220ms; }
+.enter--4 { --enter-delay: 310ms; }
+.enter--5 { --enter-delay: 400ms; }
+.enter--6 { --enter-delay: 490ms; }
+.motion-ready .enter {
+  opacity: 0;
+  transform: translateY(24px);
+  clip-path: inset(0 0 14% 0);
+  transition:
+    opacity .66s ease var(--enter-delay),
+    transform .82s cubic-bezier(.22,.72,.16,1) var(--enter-delay),
+    clip-path .82s cubic-bezier(.22,.72,.16,1) var(--enter-delay);
+  will-change: opacity, transform, clip-path;
+}
+.motion-ready .enter.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  clip-path: inset(0);
+}
 
 .section-head { display: grid; grid-template-columns: 2fr 5fr 3fr; gap: 2vw; }
 .section-head h2 { grid-column: 2; margin: 0; font-family: var(--serif); font-size: clamp(48px, 6vw, 98px); font-weight: 500; line-height: 1.08; letter-spacing: -.05em; }
@@ -395,6 +414,7 @@ main { position: relative; z-index: 2; }
   .footer { padding: 35px 20px; grid-template-columns: 1fr auto; }
   .footer-social { display: none; }
   .field-note { display: none; }
+  .motion-ready .enter { transform: translateY(16px); }
 }
 
 @media (max-width: 480px) {
@@ -461,4 +481,10 @@ main { position: relative; z-index: 2; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .nav, .nav a, .menu-labels span, .menu-mark i { transition-delay: 0s !important; }
+  .motion-ready .enter {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+    transition: none;
+  }
 }

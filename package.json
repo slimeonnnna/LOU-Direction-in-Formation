@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
+    "lenis": "1.3.25",
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6"
@@ -43,5 +44,5 @@
     "wrangler": "4.92.0"
   },
   "type": "module",
-  "displayName": "Lou \u2014 \u5728\u63a2\u7d22\u4e2d\u9010\u6e10\u627e\u5230\u65b9\u5411"
+  "displayName": "Lou — 在探索中逐渐找到方向"
 }

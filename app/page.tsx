@@ -153,6 +153,11 @@ export default function Home() {
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const elements = Array.from(document.querySelectorAll<HTMLElement>(".enter"));
+    const heroElements = elements.filter((element) => element.closest(".hero"));
+    const footerElements = elements.filter((element) => element.closest(".footer"));
+    const observedElements = elements.filter(
+      (element) => !element.closest(".hero") && !element.closest(".footer"),
+    );
 
     if (reduceMotion.matches) {
       elements.forEach((element) => element.classList.add("is-visible"));
@@ -160,21 +165,41 @@ export default function Home() {
     }
 
     document.documentElement.classList.add("motion-ready");
-    const observer = new IntersectionObserver(
+    let heroFrame = requestAnimationFrame(() => {
+      heroFrame = requestAnimationFrame(() => {
+        heroElements.forEach((element) => element.classList.add("is-visible"));
+      });
+    });
+
+    const contentObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
+          contentObserver.unobserve(entry.target);
         });
       },
-      { rootMargin: "0px 0px -32%", threshold: 0.1 },
+      { rootMargin: "0px 0px -24%", threshold: 0 },
     );
 
-    elements.forEach((element) => observer.observe(element));
+    const footerObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          footerObserver.unobserve(entry.target);
+        });
+      },
+      { threshold: 0 },
+    );
+
+    observedElements.forEach((element) => contentObserver.observe(element));
+    footerElements.forEach((element) => footerObserver.observe(element));
 
     return () => {
-      observer.disconnect();
+      cancelAnimationFrame(heroFrame);
+      contentObserver.disconnect();
+      footerObserver.disconnect();
       document.documentElement.classList.remove("motion-ready");
     };
   }, []);

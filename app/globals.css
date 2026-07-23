@@ -145,7 +145,7 @@ main { position: relative; z-index: 2; }
 }
 .hero .field-note { position: absolute; right: 8%; top: 37%; }
 .beginning .field-note { position: absolute; left: 8%; top: 30%; }
-.capability .field-note { position: absolute; right: 8%; top: 20%; }
+.capability .field-note { position: absolute; right: 8%; top: 120px; }
 .contact .field-note { position: absolute; left: 8%; top: 31%; }
 
 .hero { min-height: 100svh; padding-top: 110px; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: auto 1fr auto; gap: 0 2.1vw; align-items: center; }
@@ -187,6 +187,8 @@ main { position: relative; z-index: 2; }
 
 .section-head { display: grid; grid-template-columns: 2fr 5fr 3fr; gap: 2vw; }
 .section-head h2 { grid-column: 2; margin: 0; font-family: var(--serif); font-size: clamp(48px, 6vw, 98px); font-weight: 500; line-height: 1.08; letter-spacing: -.05em; }
+.section-head--wide { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.section-head--wide .chapter-label { grid-column: 1 / 3; }
 .section-head--wide h2 { grid-column: 3 / 12; }
 .beginning { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2.1vw; align-content: center; }
 .beginning .section-head { grid-column: 1 / 13; }

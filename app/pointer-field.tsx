@@ -174,7 +174,7 @@ export default function PointerField() {
       }
 
       opacityPaths.forEach((path, step) => {
-        context.fillStyle = `rgba(0, 0, 0, ${0.1 + step * 0.005})`;
+        context.fillStyle = `rgba(0, 0, 0, ${0.1 + step * 0.02})`;
         context.fill(path);
       });
 

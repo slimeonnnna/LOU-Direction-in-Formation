@@ -127,6 +127,12 @@ const abilities = [
     text: "用 Agent、API 与脚本减少重复，把经验变成可以复用、检查和继续改进的工作流。",
     tools: "AI Agent · LLM API · Python · JavaScript · IDE workflow",
   },
+  {
+    no: "05",
+    title: "让团队一起更快",
+    text: "我会把自己验证过的 AI 用法和高效工作流整理出来，与同事分享工具、提示和踩坑经验，让好方法不只停留在个人手里。",
+    tools: "AI workflow · Knowledge sharing · Prompt patterns · Team collaboration",
+  },
 ];
 
 export default function Home() {

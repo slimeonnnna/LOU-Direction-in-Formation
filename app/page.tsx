@@ -106,8 +106,8 @@ const abilities = [
   {
     no: "01",
     title: "看见问题",
-    text: "从抓取与索引、数据异常、页面体验和竞争结果里，先找到真正值得解决的地方。",
-    tools: "Technical audit · GSC · GA4 · Ahrefs · Core Web Vitals",
+    text: "从抓取与索引、数据异常、页面体验、浏览器请求和竞争结果里，先找到真正值得解决的地方。",
+    tools: "Chrome DevTools · Technical audit · GSC · GA4 · Ahrefs · Core Web Vitals",
   },
   {
     no: "02",
@@ -118,8 +118,8 @@ const abilities = [
   {
     no: "03",
     title: "解决问题",
-    text: "让判断真正落到页面、代码、内容与站点维护里，并对上线后的表现继续负责。",
-    tools: "WordPress · Shopify · Landing page · Schema · CRO",
+    text: "让判断真正落到页面、代码、内容与站点维护里，能用 DevTools 检查结构、请求、性能与前端异常，并对上线后的表现继续负责。",
+    tools: "Chrome DevTools · WordPress · Shopify · Landing page · Schema · CRO",
   },
   {
     no: "04",
